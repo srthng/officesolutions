@@ -8,7 +8,7 @@ app.use(bodyparser.urlencoded({extended:true}))
 app.use(express.json())
 
 
-mongoose.connect('mongodb://localhost:27017', {
+mongoose.connect("mongodb://localhost:27017/officesolutions", {
     useNewURlParser : true,
     useUnifiedTopology : true
 })
@@ -24,8 +24,8 @@ const produtoSchema = new mongoose.Schema({
     id : {type : String, required : true},
     Descrição : {type : String},
     Fornecedor : {type: String},
-    DataFabricação : {type: String},
-    QuantidadeEstoque : {type: String},
+    DataFabricação : {type: Date},
+    QuantidadeEstoque : {type: Number},
 })
 
 const Produto = mongoose.model("produto", produtoSchema)
@@ -81,7 +81,9 @@ app.post("/produtoescritorio", async (req , res)=>{
 })
 
 
-
+app.get("/", async (req, res) => {
+  res.sendFile(__dirname + "/index.html");
+});
 app.listen(port, ()=>{
     console.log(`servidor rodando na porta ${port}`)
 })
