@@ -8,7 +8,7 @@ app.use(bodyparser.urlencoded({extended:true}))
 app.use(express.json())
 
 
-mongoose.connect("mongodb://localhost:27017/officesolutions", {
+mongoose.connect("mongodb://127.0.0.1:27017/officesolutions", {
     useNewURlParser : true,
     useUnifiedTopology : true
 })
@@ -24,7 +24,7 @@ const produtoSchema = new mongoose.Schema({
     id : {type : String, required : true},
     Descrição : {type : String},
     Fornecedor : {type: String},
-    DataFabricação : {type: Date},
+    DataFabricacao : {type: Date},
     QuantidadeEstoque : {type: Number},
 })
 
@@ -33,7 +33,7 @@ const Produto = mongoose.model("produto", produtoSchema)
 
 app.post("/cadastrousuario", async (req , res)=>{
     const email = req.body.email;
-    const senha = rqe.body.senha
+    const senha = req.body.senha;
 
    
 
@@ -53,37 +53,50 @@ app.post("/cadastrousuario", async (req , res)=>{
 });
 
 
-app.post("/produtoescritorio", async (req , res)=>{
+app.post("/cadastroprodutoescritorio", async (req , res)=>{
     const id = req.body.id;
-    const Descrição = req.body.Descrição;
+    const Descricao = req.body.Descricao;
     const Fornecedor = req.body.Fornecedor;
-    const DataFabricação = req.body.DataFabricação;
+    const DataFabricacao = req.body.DataFabricacao;
     const QuantidadeEstoque = req.body.QuantidadeEstoque;
 
   
-    const produtoescritorio = new produtoescritorio({
+    const produtoescritorio = new Produto({
         id : id,
-        Descrição : Descrição,
+        Descricao : Descricao,
         Fornecedor : Fornecedor,
-        DataFabricação : DataFabricação,
+        DataFabricacao : DataFabricacao,
         QuantidadeEstoque : QuantidadeEstoque
 
+
     });
+    if(QuantidadeEstoque>=50){
+        res.json({ error: null, msg: "Erro, a quantidade no estoque já está em 50, não foi possível cadastrar"});
+    } else if(QuantidadeEstoque<=0){
+        res.json({ error: null, msg: "Erro, digite um número maior que 0 para cadastrar"});
+    } else{
+        try{
+            const newProdutoescritorio = await produtoescritorio.save();
     
-    try{
-        const newProduto = await produtoescritorio.save();
-    
-        res.json({error : null, msg : "Cadastro de usuario feito com sucesso", usuarioId : newProduto._id})
-    }
-    catch(error){
-        res.status(400).json({error});
+            res.json({ error: null, msg: "Cadastro de produto feito com sucesso", produtoId: newProdutoescritorio._id });
+        }
+        catch(error){
+            res.status(400).json({error});
+        }
     }
 })
 
 
-app.get("/", async (req, res) => {
-  res.sendFile(__dirname + "/index.html");
-});
+app.get("/cadastrousuario", async (req, res) => {
+    res.sendFile(__dirname + "/cadastrousuario.html");
+  });
+  
+  app.get("/", async (req, res) => {
+    res.sendFile(__dirname + "/index.html");
+  });
+  app.get("/cadastroprodutoescritorio", async (req, res) => {
+    res.sendFile(__dirname + "/cadastroprodutoescritorio.html");
+  });
 app.listen(port, ()=>{
     console.log(`servidor rodando na porta ${port}`)
 })
